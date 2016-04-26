@@ -3,5 +3,7 @@
     "frameRate"     : 60,
     "id"            : "gameCanvas",
     "renderMode"    : 1,
-    "jsList"        : []
+    "jsList"        : [
+    	"src/scene2.js"
+    ]
 }

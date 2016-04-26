@@ -10,6 +10,9 @@ var Game = cc.Layer.extend({
     init:function () {
         this._super();
 
+        // メニューの生成
+        this.createMenu();
+
         size = cc.director.getWinSize();
 
         aaa = new cc.Sprite(res.aaa_png);
@@ -32,7 +35,7 @@ var Game = cc.Layer.extend({
         sequence = cc.sequence(scaleTo,spawn);
 
 
-        label = new cc.LabelTTF.create("Hello World", "Arial", 40);
+        label = new cc.LabelTTF.create("Hello appScene", "Arial", 40);
         label.setPosition(size.width / 2, size.height / 2);
         this.addChild(label, 1);
 
@@ -56,7 +59,62 @@ var Game = cc.Layer.extend({
     },
     update:function(){
         frame++;
-        label.setString("frame:" + frame + "");
+        //label.setString("frame:" + frame + "");
+    },
+
+    /**
+     *  メニュー生成メソッド
+     */
+    createMenu: function () {
+        var menuButton = [];
+        _(["onMenu1", "onMenu2", "onMenu2"]).forEach(function(val, count) {
+            console.log(count);
+            var tmpButton = cc.MenuItemImage.create(
+                res.menu_button, // ON 時の画像を指定
+                res.menu_button, // 押下時の画像を指定
+                this[val], this); // メニュー選択時のイベントを指定
+            tmpButton.setTag(val); // タグを指定 - 選択時の識別子となる
+            var menuSize = tmpButton.getContentSize();
+            tmpButton.setPosition(menuSize.width/2, ((menuSize.height/2)*-1)+((menuSize.height*count)*-1));
+            menuButton.push(tmpButton);
+        }.bind(this));
+
+        var gameWin = cc.director.getWinSize();
+        var menu = cc.Menu.create(menuButton);
+        menu.setPosition(0, gameWin.height);
+        this.addChild(menu, 1);
+    },
+
+    /**
+     *  メニュー選択時イベント
+     *  @param {object} sender イベントを発火したメニューオブジェクト
+     */
+    onMenu1: function (sender) {
+        console.log(sender.getTag());
+        // Scene2 へ遷移
+        var className = sender.getTag();
+        var transitionScene = cc.TransitionFade.create(2.0, new Scene2());
+        cc.director.pushScene(transitionScene);
+        // イベント全削除
+        cc.eventManager.removeAllListeners();            
+        // オブジェクト全解除
+        this.removeAllChildren();
+    },
+
+    /**
+     *  メニュー選択時イベント
+     *  @param {object} sender イベントを発火したメニューオブジェクト
+     */
+    onMenu2: function (sender) {
+        console.log(sender.getTag());
+        // Scene2 へ遷移
+        var className = sender.getTag();
+        var transitionScene = cc.TransitionFade.create(2.0, new Scene3());
+        cc.director.pushScene(transitionScene);
+        // イベント全削除
+        cc.eventManager.removeAllListeners();            
+        // オブジェクト全解除
+        this.removeAllChildren();
     },
 
     onTouchBegan:function (touch, event) {
@@ -75,11 +133,14 @@ var Game = cc.Layer.extend({
     }
 });
 
-var MyScene = cc.Scene.extend({
+var appScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
         var layer = new Game();
         layer.init();
         this.addChild(layer);
+    },
+    onExit:function () {
+        console.log("appSene onExit()");
     }
 });
