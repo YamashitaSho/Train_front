@@ -1,5 +1,6 @@
 var res = {
     aaa_png : "res/aaa.png",
+    menu_button : "res/btn-menu.png",
     hello_png : "res/HelloWorld.png"
 };
 
