@@ -7,7 +7,7 @@ var sequence;
 var frame = 0;
 
 var Game = cc.Layer.extend({
-    init:function () {
+    ctor:function () {
         this._super();
 
         // メニューの生成
@@ -137,7 +137,6 @@ var appScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
         var layer = new Game();
-        layer.init();
         this.addChild(layer);
     },
     onExit:function () {
