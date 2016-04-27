@@ -7,7 +7,7 @@ var sequence;
 var frame = 0;
 
 var Layer2 = cc.Layer.extend({
-    init:function () {
+    ctor:function () {
         this._super();
 
         label = new cc.LabelTTF.create("Hello Scene 2", "Arial", 40);
@@ -30,7 +30,6 @@ var Scene2 = cc.Scene.extend({
     onEnter:function () {
         this._super();
         var layer = new Layer2();
-        layer.init();
         this.addChild(layer);
     },
     onExit:function () {
