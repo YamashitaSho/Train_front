@@ -67,7 +67,7 @@ var Game = cc.Layer.extend({
      */
     createMenu: function () {
         var menuButton = [];
-        _(["onMenu1", "onMenu2", "onMenu2"]).forEach(function(val, count) {
+        _(["onMenu1", "onMenu2", "onMenu3"]).forEach(function(val, count) {
             console.log(count);
             var tmpButton = cc.MenuItemImage.create(
                 res.menu_button, // ON 時の画像を指定
@@ -96,7 +96,7 @@ var Game = cc.Layer.extend({
         var transitionScene = cc.TransitionFade.create(2.0, new Scene2());
         cc.director.pushScene(transitionScene);
         // イベント全削除
-        cc.eventManager.removeAllListeners();            
+        cc.eventManager.removeAllListeners();
         // オブジェクト全解除
         this.removeAllChildren();
     },
@@ -112,7 +112,22 @@ var Game = cc.Layer.extend({
         var transitionScene = cc.TransitionFade.create(2.0, new Scene3());
         cc.director.pushScene(transitionScene);
         // イベント全削除
-        cc.eventManager.removeAllListeners();            
+        cc.eventManager.removeAllListeners();
+        // オブジェクト全解除
+        this.removeAllChildren();
+    },
+    /**
+     *  メニュー選択時イベント
+     *  @param {object} sender イベントを発火したメニューオブジェクト
+     */
+    onMenu3: function (sender) {
+        console.log(sender.getTag());
+        // Scene2 へ遷移
+        var className = sender.getTag();
+        var transitionScene = cc.TransitionFade.create(2.0, new MenuScene());
+        cc.director.pushScene(transitionScene);
+        // イベント全削除
+        cc.eventManager.removeAllListeners();
         // オブジェクト全解除
         this.removeAllChildren();
     },

@@ -1,9 +1,9 @@
 window.onload = function(){
     cc.game.onStart = function(){
-        cc.view.setDesignResolutionSize(1024, 768, cc.ResolutionPolicy.SHOW_ALL);
+        cc.view.setDesignResolutionSize(800, 600, cc.ResolutionPolicy.UNKNOWN);
         //load resources
         cc.LoaderScene.preload(g_resources, function () {
-            cc.director.runScene(new appScene());
+            cc.director.runScene(new MenuScene());
         }, this);
     };
     cc.game.run("gameCanvas");

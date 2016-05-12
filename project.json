@@ -4,6 +4,5 @@
     "id"            : "gameCanvas",
     "renderMode"    : 1,
     "jsList"        : [
-    	"src/scene2.js"
     ]
 }

@@ -18,7 +18,7 @@ var Layer3 = cc.Layer.extend({
             event:cc.EventListener.MOUSE,
             onMouseUp: function(evt) {
                 var transitionScene = cc.TransitionFade.create(2.0, new appScene());
-                cc.director.pushScene(transitionScene);                    
+                cc.director.pushScene(transitionScene);
                 // 追加済みのイベントを削除
                 cc.eventManager.removeAllListeners();
             },
@@ -33,6 +33,6 @@ var Scene3 = cc.Scene.extend({
         this.addChild(layer);
     },
     onExit:function () {
-        console.log("Scen3 onExit()");
+        console.log("Scene3 onExit()");
     }
 });
