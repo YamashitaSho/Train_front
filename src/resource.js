@@ -2,6 +2,7 @@ var res = {
     aaa_png : "res/aaa.png",
     menu_button : "res/btn-menu.png",
     hello_png : "res/HelloWorld.png",
+    back : "res/back.png",
     menu_ttl : "res/menu-ttl.png",
     menu_btn00 : "res/menu-btn00.png",
     menu_btn01 : "res/menu-btn01.png",
