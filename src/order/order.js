@@ -1,16 +1,12 @@
 var order;
-var update_flag = false;
-var char_mode = true;
-var delete_flag = false;
-
-var select = new SelectState();
-
 
 var OrderScene = cc.Scene.extend({
     // Layerクラスをnewするにはthis._super()が必要
     charLayer: null,
     itemLayer: null,
     commonLayer: null,
+    char_mode: true,
+
     onEnter: function () {
         this._super();
         this.setName("OrderLayer");
@@ -28,19 +24,57 @@ var OrderScene = cc.Scene.extend({
         this.addChild(backgroundLayer, 0);
         this.addChild(this.charLayer, 100);
         this.addChild(this.itemLayer, 101);
-        this.addChild(this.commonLayer, 200);
+        this.addChild(this.commonLayer, 50);
 
         this.apiGetOrder();
 
         this.scheduleUpdate();
+    },
 
 
-        cc.eventManager.addListener({
-            event:cc.EventListener.MOUSE,
-            onMouseUp: function(evt) {
-                console.log(this);
-            }.bind(this),
-        }, this);
+    update: function () {
+        //モードチェンジ処理
+        this.modeChange();
+        //編成変更処理
+        this.changeOrder();
+
+        this.charLayer.updateSelect();
+        this.itemLayer.updateSelect();
+
+        if (this.commonLayer.getBackFlag()){
+            this.selectBack();
+        }
+    },
+
+
+    /**
+     * キャラモードとアイテムモードを切り替える
+     * 切り替えボタンが押されていなければスキップ
+     */
+    modeChange: function (){
+        if (this.commonLayer.getTabFlag()){
+            this.char_mode = (!this.char_mode);
+            this.charLayer.setVisible(this.char_mode);
+            this.itemLayer.setVisible(!this.char_mode);
+            this.charLayer.select.setUpdate();
+            this.itemLayer.select.setUpdate();
+        }
+    },
+
+
+    /**
+     * 編成変更処理
+     * 編成変更ボタンが押されていなければスキップ
+     */
+    changeOrder: function (){
+        //編成変更ボタンがタップされたか
+        if (this.commonLayer.getChangeFlag()) {
+            if (this.char_mode) {
+                this.apiChangeOrderChar();
+            } else {
+                this.apiChangeOrderItem();
+            }
+        }
     },
 
 
@@ -64,61 +98,78 @@ var OrderScene = cc.Scene.extend({
     },
 
 
-    update: function () {
-        if (update_flag === true){
-            update_flag = false;
-            this.apiGetOrder();
-        }
-        var stat = select.isToUpdate();
-        if (stat === true){
-            var target = this.commonLayer.getChildByName("select");
-            while ( target !== null ) {
-                target.removeFromParent();
-                target = this.commonLayer.getChildByName("select");
-            }
-            this.commonLayer.updateSelect();
-        }
-        if (delete_flag === true){
-            delete_flag = false;
-            this.selectBack();
-        }
-
+    /**
+     * 編成変更にともなう画面の更新
+     */
+    updateAppearance: function () {
+        this.commonLayer.updatePartyList();
+        this.charLayer.updateChars();
+        this.itemLayer.updateItems();
     },
 
 
-    updateAppearance: function () {
-        //update対象のものを削除する
-        var target = this.commonLayer.getChildByName("update");
-        while ( target !== null ) {
-            target.removeFromParent();
-            target = this.commonLayer.getChildByName("update");
+    /**
+     * キャラ編成変更情報APIの送信
+     */
+    apiChangeOrderChar: function (){
+        if ( !this.charLayer.select.canChangeChar() ){
+            return;
         }
-        target = this.charLayer.getChildByName("update");
-        while ( target !== null ) {
-            target.removeFromParent();
-            target = this.commonLayer.getChildByName("update");
+        var request = {
+            slot: this.charLayer.select.getPartyChar(),
+            new_id: order.chars[this.charLayer.select.getChar()].char_id
+        };
+        $.ajax({
+            url:"http://homestead.app:8000/v1/order/char/",
+            data:request,
+            type:"PUT"
+        }).done(function(data){
+            console.log("success!");
+            console.log(data);
+            this.apiGetOrder();
+        }.bind(this)).fail(function(data){
+            console.log("failed...");
+            console.log(data);
+        });
+    },
+
+
+    /**
+     * アイテム編成変更APIの送信
+     */
+    apiChangeOrderItem: function (){
+        if ( !this.itemLayer.select.canChangeItem() ){
+            return;
         }
-        target = this.itemLayer.getChildByName("update");
-        while ( target !== null ) {
-            target.removeFromParent();
-            target = this.commonLayer.getChildByName("update");
-        }
-        this.charLayer.updateCharList();
-        this.itemLayer.updateItemList();
-        this.commonLayer.updatePartyList();
+        var request = {
+            slot: this.itemLayer.select.getPartyItem(),
+            new_id: order.items[this.itemLayer.select.getItem()].item_id
+        };
+        $.ajax({
+            url:"http://homestead.app:8000/v1/order/item/",
+            data:request,
+            type:"PUT"
+        }).done(function(data){
+            console.log("success!");
+            console.log(data);
+            this.apiGetOrder();
+        }.bind(this)).fail(function(data){
+            console.log("failed...");
+            console.log(data);
+        });
     },
 
 
     /**
      * 戻るボタンの選択
      */
-     selectBack: function (){
+    selectBack: function (){
         var transitionScene = cc.TransitionFade.create(1.0, new MenuScene());
         cc.director.pushScene(transitionScene);
         // 追加済みのイベントを削除
         cc.eventManager.removeAllListeners();
         this.removeAllChildren();
-     },
+    },
 
 
     onExit: function () {

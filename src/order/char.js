@@ -1,9 +1,12 @@
-
+/**
+ * キャラ編成モードで表示するレイヤー
+ */
 var CharLayer = cc.Layer.extend({
+    select: null,
     ctor: function () {
         this._super();
         this.makeTab();         //モードタブ作成
-        this.makeChangeButton();//入れ替えボタン作成
+        this.select = new SelectState();
     },
 
 
@@ -11,21 +14,30 @@ var CharLayer = cc.Layer.extend({
      * タブボタン生成
      */
      makeTab: function (){
-        var tab_char = new cc.MenuItemImage(res.order_tab_char_on, res.order_tab_char_on, this.toItemMode, this);
-        var tab_item = new cc.MenuItemImage(res.order_tab_item_off, res.order_tab_item_off, this.toItemMode, this);
-        tab_char.setPosition(505,450);  // 480 + 48
+        var tab_char = new cc.MenuItemImage(res.order_tab_char_on);
+        var tab_item = new cc.MenuItemImage(res.order_tab_item_off);
+        tab_char.setPosition(505,450);
         tab_item.setPosition(650,450);
-
-        var tab = new cc.Menu(tab_char, tab_item);
-        tab.setPosition(0,0);
-        this.addChild(tab);
+        this.addChild(tab_char);
+        this.addChild(tab_item);
      },
+
+
+    updateChars: function () {
+        var target = this.getChildByName("update");
+        while ( target !== null) {
+            target.removeFromParent();
+            target = this.getChildByName("update");
+        }
+        this.putCharList();
+        this.putPartyList();
+    },
 
 
     /**
      * 所持キャラボタン表示メソッド
      */
-    updateCharList: function () {
+    putCharList: function () {
         var chars = [];
         var xRow = 3;
         var yColomn = 4;
@@ -53,58 +65,103 @@ var CharLayer = cc.Layer.extend({
     },
 
 
-    selectChar: function (sender){
-        var tag = sender.getTag();
-        if ( order.chars[tag] ){
-            select.setChar(tag);
-        } else {
-            select.setChar(null);
+    /*
+     * 編成中キャラを選択するボタンを作成する
+     *
+     * キャラの位置には透明画像のボタンを配置する
+     * アイテムの位置には灰色画像のスプライトを配置する
+     */
+    putPartyList: function (){
+        var chars = [];
+        var items = [];
+        var xRow = 3;
+        var x;
+        var white = res.order_icon_white;
+        var gray = res.order_icon_gray;
+        for (x = 0; x < xRow; x+=1){
+            chars[x] = new cc.MenuItemImage(white, white, this.selectPartyChar ,this);
+            chars[x].setPosition(110 + x * 100, 384);
+            chars[x].tag = x;
+            items[x] = new cc.MenuItemImage(gray, gray, function(){}, this);
+            items[x].setPosition(110 + x * 100, 284);
+            items[x].tag = x;
         }
-    },
-
-
-    toItemMode: function (){
-        console.log("toItemMode");
-        var scene = this.getParent();
-        var charLayer = scene.getChildByName("char");
-        var itemLayer = scene.getChildByName("item");
-        charLayer.setVisible(false);
-        itemLayer.setVisible(true);
-        char_mode = false;
-        select.setUpdate();
-    },
-
-
-    makeChangeButton: function (){
-        var change_button = new cc.MenuItemImage(res.order_change, res.order_change, this.apiChangeOrderChar, this);
-        var change_menu = new cc.Menu(change_button);
-        change_menu.setPosition(200,40);
-        this.addChild(change_menu);
+        var items_party = new cc.Menu(items);
+        var chars_party = new cc.Menu(chars);
+        chars_party.setPosition(0, 0);
+        chars_party.setName("update");
+        items_party.setPosition(0, 0);
+        items_party.setName("update");
+        this.addChild(items_party);
+        this.addChild(chars_party);
     },
 
 
     /**
-     * キャラ編成変更情報APIの送信
+     * キャラ編成スロットの選択
      */
-    apiChangeOrderChar: function (){
-        if ( !select.canChangeChar() ){
-            return;
+    selectPartyChar: function (sender) {
+        console.log("button");
+        var tag = sender.getTag();
+        this.select.setPartyChar(tag);
+    },
+
+
+    selectChar: function (sender){
+        var tag = sender.getTag();
+        if ( order.chars[tag] ){
+            this.select.setChar(tag);
+        } else {
+            this.select.setChar(null);
         }
-        var request = {
-            slot: select.party_char,
-            new_id: order.chars[select.getChar()].char_id
-        };
-        $.ajax({
-            url:"http://homestead.app:8000/v1/order/char/",
-            data:request,
-            type:"PUT"
-        }).done(function(data){
-            console.log("success!");
-            console.log(data);
-            update_flag = true;
-        }).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+    },
+
+
+    updateSelect: function () {
+        if (this.select.isToUpdate()){
+            this.removeSelect();
+            this.highLightSelect();
+        }
+    },
+
+
+    /**
+     * 選択されているキャラをハイライト表示する
+     */
+    highLightSelect: function (){
+        this.highLightPartyChar();
+        this.highLightChar();
+    },
+
+
+    highLightPartyChar: function () {
+        var sel = this.select.getPartyChar();
+        if (sel !== null){
+            var party = new cc.Sprite(res.order_frame_selected);
+            party.setPosition(110 + sel * 100, 384);
+            party.setName("select");
+            this.addChild(party, 300);
+        }
+        console.log(this.select);
+    },
+
+
+    highLightChar: function () {
+        var sel = this.select.getChar();
+        if (sel !== null){
+            var char = new cc.Sprite(res.order_frame_selected);
+            char.setPosition(480 + 100 * (sel % 3), 384 - 100 * (sel / 3 | 0) );
+            char.setName("select");
+            this.addChild(char, 300);
+        }
+    },
+
+
+    removeSelect: function(){
+        var target = this.getChildByName("select");
+        while (target !== null){
+            target.removeFromParent();
+            target = this.getChildByName("select");
+        }
     }
 });
