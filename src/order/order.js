@@ -23,8 +23,8 @@ var OrderScene = cc.Scene.extend({
 
         this.addChild(backgroundLayer, 0);
         this.addChild(this.charLayer, 100);
-        this.addChild(this.itemLayer, 101);
-        this.addChild(this.commonLayer, 50);
+        this.addChild(this.itemLayer, 100);
+        this.addChild(this.commonLayer, 200);
 
         this.apiGetOrder();
 
@@ -87,12 +87,10 @@ var OrderScene = cc.Scene.extend({
             url: "http://homestead.app:8000/v1/order/",
             type: "GET"
         }).done(function (data) {
-            console.log("success!");
             console.log(data);
             order = data;
             this.updateAppearance();
         }.bind(this)).fail(function (data) {
-            console.log("failed...");
             console.log(data);
         });
     },
@@ -102,7 +100,6 @@ var OrderScene = cc.Scene.extend({
      * 編成変更にともなう画面の更新
      */
     updateAppearance: function () {
-        this.commonLayer.updatePartyList();
         this.charLayer.updateChars();
         this.itemLayer.updateItems();
     },
@@ -124,11 +121,9 @@ var OrderScene = cc.Scene.extend({
             data:request,
             type:"PUT"
         }).done(function(data){
-            console.log("success!");
             console.log(data);
             this.apiGetOrder();
         }.bind(this)).fail(function(data){
-            console.log("failed...");
             console.log(data);
         });
     },
@@ -150,11 +145,9 @@ var OrderScene = cc.Scene.extend({
             data:request,
             type:"PUT"
         }).done(function(data){
-            console.log("success!");
             console.log(data);
             this.apiGetOrder();
         }.bind(this)).fail(function(data){
-            console.log("failed...");
             console.log(data);
         });
     },
@@ -166,7 +159,6 @@ var OrderScene = cc.Scene.extend({
     selectBack: function (){
         var transitionScene = cc.TransitionFade.create(1.0, new MenuScene());
         cc.director.pushScene(transitionScene);
-        // 追加済みのイベントを削除
         cc.eventManager.removeAllListeners();
         this.removeAllChildren();
     },
