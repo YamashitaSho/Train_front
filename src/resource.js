@@ -19,6 +19,9 @@ var res = {
     order_change : "res/order/order-change.png",
     order_icon_gray : "res/order/order-icon-gray.png",
     order_icon_white : "res/order/order-icon-white.png",
+    gacha_ttl : "res/gacha-ttl.png",
+    gacha_button : "res/gacha-button.png",
+    gacha_spot : "res/gacha-spot.png",
     frame : "res/frame.png"
 };
 

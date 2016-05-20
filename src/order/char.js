@@ -26,6 +26,7 @@ var CharLayer = cc.Layer.extend({
 
      /**
       * キャラ詳細表示グループの作成
+      *
       */
     makeDetail: function () {
         var detail = [

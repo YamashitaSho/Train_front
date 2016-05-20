@@ -27,13 +27,6 @@ var MenuLayer = cc.Layer.extend({
         this.apiGetStatus();
 
         this.scheduleUpdate();
-
-        cc.eventManager.addListener({
-            event:cc.EventListener.TOUCH_ONE_BY_ONE,
-            onTouchBegan:this.onTouchBegan,
-            onTouchMoved:this.onTouchMoved,
-            onTouchEnded:this.onTouchEnded
-        }, this);
     },
 
 
@@ -100,7 +93,7 @@ var MenuLayer = cc.Layer.extend({
     onOrder: function (sender) {
         console.log(sender.getTag());
         var className = sender.getTag();
-        var transitionScene = cc.TransitionFade.create(1.0, new OrderScene());
+        var transitionScene = cc.TransitionFade.create(0.5, new OrderScene());
         cc.director.pushScene(transitionScene);
         // イベント全削除
         cc.eventManager.removeAllListeners();
@@ -116,7 +109,7 @@ var MenuLayer = cc.Layer.extend({
     onGacha: function (sender) {
         console.log(sender.getTag());
         var className = sender.getTag();
-        var transitionScene = cc.TransitionFade.create(1.0, new GachaScene());
+        var transitionScene = cc.TransitionFade.create(0.5, new GachaScene());
         cc.director.pushScene(transitionScene);
         // イベント全削除
         cc.eventManager.removeAllListeners();
@@ -154,11 +147,6 @@ var MenuLayer = cc.Layer.extend({
         cc.eventManager.removeAllListeners();
         // オブジェクト全解除
         this.removeAllChildren();
-    },
-
-
-    onTouchBegan:function (touch, event) {
-        return true;
     }
 });
 
