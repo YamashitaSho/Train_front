@@ -113,8 +113,8 @@ var OrderScene = cc.Scene.extend({
             return;
         }
         var request = {
-            slot: this.charLayer.select.getPartyChar(),
-            new_id: order.chars[this.charLayer.select.getChar()].char_id
+            slot: 0 + this.charLayer.select.getPartyChar(),
+            new_id: 0 + order.chars[this.charLayer.select.getChar()].char_id
         };
         $.ajax({
             url:"http://homestead.app:8000/v1/order/char/",
@@ -137,8 +137,8 @@ var OrderScene = cc.Scene.extend({
             return;
         }
         var request = {
-            slot: this.itemLayer.select.getPartyItem(),
-            new_id: order.items[this.itemLayer.select.getItem()].item_id
+            slot: 0 + this.itemLayer.select.getPartyItem(),
+            new_id: 0 + order.items[this.itemLayer.select.getItem()].item_id
         };
         $.ajax({
             url:"http://homestead.app:8000/v1/order/item/",
