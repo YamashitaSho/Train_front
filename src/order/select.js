@@ -59,7 +59,7 @@ SelectState.prototype.setPartyChar = function (party_char) {
 
 //編成中アイテムを選択した
 SelectState.prototype.setPartyItem = function (party_item) {
-    this.char = party_item;
+    this.party_item = party_item;
     this.update = true;
     return ;
 };
@@ -86,7 +86,7 @@ SelectState.prototype.isToUpdate = function () {
  */
 SelectState.prototype.canChangeChar = function () {
     var res = true;
-    if ( (this.party_char === null) || (this.char_id === null)){
+    if ( (this.party_char === null) || (this.char === null)){
         res = false;
     }
     return res;
@@ -99,7 +99,7 @@ SelectState.prototype.canChangeChar = function () {
  */
 SelectState.prototype.canChangeItem = function (){
     var res = true;
-    if ( (this.party_item === null) || (this.item_id === null)){
+    if ( (this.party_item === null) || (this.item === null)){
         res = false;
     }
     return res;

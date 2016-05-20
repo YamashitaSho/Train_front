@@ -34,13 +34,6 @@ var GachaLayer = cc.Layer.extend({
             type:"GET",
         }).done(function(data){
             console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
             console.log(data);
         }).fail(function(data){
             console.log("failed...");
@@ -58,13 +51,6 @@ var GachaLayer = cc.Layer.extend({
             type:"POST",
         }).done(function(data){
             console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
             console.log(data);
         }).fail(function(data){
             console.log("failed...");
