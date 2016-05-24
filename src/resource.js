@@ -1,7 +1,4 @@
 var res = {
-    aaa_png : "res/aaa.png",
-    menu_button : "res/btn-menu.png",
-    hello_png : "res/HelloWorld.png",
     back : "res/back.png",
     menu_ttl : "res/menu-ttl.png",
     menu_btn00 : "res/menu-btn00.png",
@@ -22,7 +19,11 @@ var res = {
     gacha_ttl : "res/gacha-ttl.png",
     gacha_button : "res/gacha-button.png",
     gacha_spot : "res/gacha-spot.png",
-    frame : "res/frame.png"
+    quest_ttl : "res/quest-ttl.png",
+    frame : "res/frame.png",
+    yes : "res/yes.png",
+    no : "res/no.png",
+    ok : "res/ok.png"
 };
 
 var g_resources = [];

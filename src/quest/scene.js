@@ -1,41 +1,28 @@
-var size;
-var aaa;
-var lavel;
-var hello;
-var scene;
-var sequence;
-var frame = 0;
-
 var QuestScene = cc.Scene.extend({
+    layer: null,
     onEnter:function () {
         this._super();
-        var layer = new QuestLayer();
-        this.addChild(layer);
+        var backgroundLayer = new cc.LayerColor(cc.color(170, 255, 255, 255));
+        this.layer = new QuestConfirmLayer();
+        this.addChild(backgroundLayer, 0);
+        this.addChild(this.layer);
+        this.apiGetMyParty();
     },
     onExit:function () {
         console.log("QuestScene onExit()");
     },
 
-    /**
-     * バトル結果取得APIの送信
-     */
-    apiJoinQuestBattle: function (){
+
+    apiGetMyParty: function () {
         $.ajax({
             url:"http://homestead.app:8000/v1/quest/",
-            type:"POST",
+            type:"GET",
         }).done(function(data){
-            console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
             console.log(data);
-        }).fail(function(data){
-            console.log("failed...");
+            this.layer.updateStatus(data);
+        }.bind(this)).fail(function(data){
             console.log(data);
         });
     },
+
 });
