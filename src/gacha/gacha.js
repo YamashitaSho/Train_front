@@ -19,14 +19,14 @@ var GachaLayer = cc.Layer.extend({
     _putTitle: function () {
         var head = new cc.Sprite(res.gacha_ttl);
         head.setPosition(this.size.width / 2, this.size.height - 80);
-        this.addChild(head, 1);
+        this.addChild(head);
     },
 
 
     _putFrame: function (){
         var frame = new cc.Sprite(res.frame);
         frame.setPosition(this.size.width / 2, this.size.height / 2);
-        this.addChild(frame, 2);
+        this.addChild(frame);
     },
 
 
