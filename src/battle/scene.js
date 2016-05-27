@@ -6,7 +6,6 @@ var BattleScene = cc.Scene.extend({
         this._super();
         var backgroundLayer = new cc.LayerColor(cc.color(170,255,255,255));
         this.apiSetBattle();
-        this.apiTurnoverBattle();
         this.back = new BattleBackLayer();
         this.middle = new BattleMiddleLayer();
         this.front = new BattleFrontLayer();
@@ -33,6 +32,7 @@ var BattleScene = cc.Scene.extend({
         }).done(function(data){
             console.log(data);
             this.middle.makeSpriteChar(data);
+            this.apiTurnoverBattle();
         }.bind(this)).fail(function(data){
             console.log("failed...");
             console.log(data);

@@ -330,7 +330,7 @@ var QuestConfirmLayer = cc.Layer.extend({
 
 
     /**
-     * Yesボタンを有効化する
+     * ボタンを有効化する
      */
     _enableMenu: function () {
         var menu = this.getChildByName("menu");
