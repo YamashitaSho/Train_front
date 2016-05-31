@@ -1,29 +1,62 @@
 var BattleMiddleLayer = cc.Layer.extend({
+
     hp: {
         friend: null,
         enemy: null,
     },
+
     damage: {
-        friend: null,
-        enemy: null,
+        friend: 0,
+        enemy: 0
     },
+
     current_hp: {
         friend: 0,
         enemy: 0
     },
+
     max_hp: {
         friend: 0,
         enemy: 0
     },
+
+    turn: null,
+    button_defer: null,
+
     ctor:function () {
         this._super();
         this._makeSpriteHP();
         this._makeSpriteDamage();
+        this._makeLabelTurn();
+        this._addButton();
         console.log(this);
     },
 
+
     /**
-     * キャラのスプライト
+     * ボタンメニューの表示
+     */
+    _addButton: function () {
+        var button_next = new cc.MenuItemImage(res.battle_next, res.battle_next, this._selectNext, this);
+        button_next.setPosition(0, 0);
+        button_next.setName("next");
+
+        var button_result = new cc.MenuItemImage(res.battle_next, res.battle_next, this._selectResult, this);
+        button_result.setPosition(0, 0);
+        button_result.setName("result");
+        button_result.setVisible(false);
+
+
+        var menu = new cc.Menu(button_next, button_result);
+        menu.setPosition(400, 96);
+        menu.setName("menu");
+        menu.setVisible(false);
+        this.addChild(menu);
+    },
+
+
+    /**
+     * キャラのスプライトを作成
      */
     makeSpriteChar : function (data) {
         var chars = new cc.Sprite();
@@ -32,33 +65,35 @@ var BattleMiddleLayer = cc.Layer.extend({
         var enemies = [];
         var url;
         var key;
+        var plus;
         var friend = [
             {
-                pos: {x: 500, y:300}
+                pos: {x: 500, y:240}
             },
             {
-                pos: {x: 620, y:400}
+                pos: {x: 620, y:320}
             },
             {
-                pos: {x: 610, y:200}
+                pos: {x: 610, y:120}
             },
         ];
         var enemy = [
             {
-                pos: {x: 300, y:300}
+                pos: {x: 300, y:250}
             },
             {
-                pos: {x: 180, y:400}
+                pos: {x: 180, y:300}
             },
             {
-                pos: {x: 200, y:200}
+                pos: {x: 200, y:120}
             }
         ];
         for (key in data.friend_position){
             url = "res/char/org/char"+("0" + data.friend_position[key].char_id).slice(-2) + ".png";
             friends[key] = new cc.Sprite(url);
             friends[key].setPosition(friend[key].pos);
-            friends[key].setName(key);
+            plus = Number(key) + 1;
+            friends[key].setName("friend"+plus);
             friends[key].scaleX =    0.7;
             friends[key].scaleY = 0.7;
             chars.addChild(friends[key]);
@@ -67,7 +102,8 @@ var BattleMiddleLayer = cc.Layer.extend({
             url = "res/enemy/org/char"+("0" + data.enemy_position[key].char_id).slice(-2) + ".png";
             enemies[key] = new cc.Sprite(url);
             enemies[key].setPosition(enemy[key].pos);
-            enemies[key].setName(key);
+            plus = 0 + Number(key) + 1;
+            enemies[key].setName("enemy"+ plus);
             enemies[key].scaleX = -0.7;
             enemies[key].scaleY = 0.7;
             chars.addChild(enemies[key]);
@@ -77,13 +113,14 @@ var BattleMiddleLayer = cc.Layer.extend({
 
 
     /**
-     * 残HPのスプライト
+     * 残HPのスプライトを作成
+     * 基準点は中央下
      */
     _makeSpriteHP: function () {
         this.hp.friend = new cc.Sprite(res.battle_friend_hp);
         this.hp.enemy = new cc.Sprite(res.battle_enemy_hp);
-        this.hp.friend.setPosition(720, 120);
-        this.hp.enemy.setPosition(80, 120);
+        this.hp.friend.setPosition(720, 80);
+        this.hp.enemy.setPosition(80, 80);
         for (var key in this.hp){
             this.hp[key].setName(""+key+"_hp");
             this.hp[key].anchorY = 0;
@@ -94,7 +131,7 @@ var BattleMiddleLayer = cc.Layer.extend({
 
 
     /**
-     * ダメージ表示のラベル
+     * ダメージ表示のラベルを作成
      */
     _makeSpriteDamage: function () {
         this.damage.friend = new cc.LabelTTF("50", "Arial", 48);
@@ -104,21 +141,23 @@ var BattleMiddleLayer = cc.Layer.extend({
         this.damage.friend.setColor({r:255, g:0, b:0, a:255});
         this.damage.enemy.setColor({r:0, g:0, b:255, a:255});
         for (var key in this.damage){
-            this.damage[key].setName(""+key+"_damage");
-           // this.damage[key].setVisible(false);
+            this.damage[key].setName(""+(key)+"_damage");
+            this.damage[key].setVisible(false);
             this.addChild(this.damage[key]);
         }
     },
 
 
     /**
-     + デバフ表示のスプライト
-     */
-
-
-    /**
      *
      */
+    _makeLabelTurn: function () {
+        this.turn = new cc.LabelTTF("Turn 1", "MS Gothic", 72);
+        this.turn.setColor({r:30, g:30, b:30, a:255});
+        this.turn.setName("turn");
+        this.turn.setVisible(false);
+        this.addChild(this.turn);
+    },
 
 
     /**
@@ -128,13 +167,16 @@ var BattleMiddleLayer = cc.Layer.extend({
         console.log(data);
         this._getTimelineOfBegin()
         .then(function(){
-            this._getTimelineOfTurn(data);
+            return this._getTimelineOfTurn(data);
+        }.bind(this))
+        .then(function(){
+            return this._switchResultButton();
         }.bind(this));
     },
 
+
     /**
      * 戦闘開始時のアニメーション
-     * Deferred対応
      */
     _getTimelineOfBegin: function () {
         var friend = $.Deferred();
@@ -168,13 +210,14 @@ var BattleMiddleLayer = cc.Layer.extend({
             friend: this.max_hp.friend,
             enemy : this.max_hp.enemy
         };
-        var defer = this._loopTimelineOfTurn(data, 0)();
-        return $.when(defer);
+        return $.when(
+            this._loopTimelineOfTurn(data, 0)()
+        );
     },
 
 
     /**
-     * ターンループ(非同期)
+     * ターン処理(再帰ループ)
      */
     _loopTimelineOfTurn: function (data, count) {
         return function () {
@@ -184,37 +227,40 @@ var BattleMiddleLayer = cc.Layer.extend({
                 defer.resolve();
             } else {
                 var turn = data[count];
-                console.log("open:" +count);
-                this._getTimelineOfAction(turn)
-                .then(
-                    this._loopTimelineOfTurn(data, count+1)
-                ).then(function () {
-                    console.log("close:" +count);
-                    defer.resolve();
-                });
+
+                this._getTimelineOfAction(turn, count)()         //このターンの行動
+                .then(this._loopTimelineOfTurn(data, count+1))  //次のターンに進む
+                .then(defer.resolve);                   //ターンを片付ける
             }
             return $.when(defer);
         }.bind(this);
     },
 
+
     /**
-     * 行動一回ごとの処理
+     *
      */
-    _getTimelineOfAction: function (turn){
-        var defer = $.Deferred();
-        if (!!turn.action){
-            console.log("action");
-            this._loopTimelineOfAct(turn, 0)()
-            .then(function () {
+    _getTimelineOfAction: function (turn, count){
+        return function () {
+            var defer;
+            if (!!turn.action){
+                defer = this._waitNextButton()              //ボタンを押させる
+                .done(
+                    this._loopTimelineOfAct(turn, 0),
+                    this._turnEffect(count));    //行動ループを回す
+            } else {
+                defer = $.Deferred();
                 defer.resolve();
-            });
-        } else {
-            defer.resolve();
-        }
-        return $.when(defer);
+            }
+            return $.when(defer);
+        }.bind(this);
     },
 
 
+    /**
+     * キャラ行動処理(再帰処理)
+     * @return function()
+     */
     _loopTimelineOfAct: function (turn, count) {
         return function () {
             var defer = $.Deferred();
@@ -223,54 +269,214 @@ var BattleMiddleLayer = cc.Layer.extend({
                 defer.resolve();
             } else {
                 var action = turn.action[count];
-
-                key = this._operateAction(action);
-                this._playAction(action, key)
-                .then(
-                    this._loopTimelineOfAct(turn, count+1)
-                ).then(function () {
-                    defer.resolve();
-                });
+                var member = this._getAction(action);
+                this._playAction(action, member)
+                .then(this._loopTimelineOfAct(turn, count+1))
+                .then(defer.resolve);
             }
+
             return $.when(defer);
         }.bind(this);
     },
 
 
     /**
-     * アクションに対して対象を取得する(非同期演算ではない)
+     * アクションに対して主体と対象を取得する(非同期演算ではない)
      */
-    _operateAction: function (action){
+    _getAction: function (action){
+        var res = {
+            subject: "",
+            target: "",
+            side: 1,
+        };
         var pos = action.position.charAt(0);
         if (pos === "f"){
-            key = "enemy";
+            res.subject = action.position;
+            res.target = "enemy";
+            res.side = -1;
         } else if (pos === "e"){
-            key = "friend";
+            res.subject = action.position;
+            res.target = "friend";
+            res.side = 1;
         }
-        return key;
+        return res;
     },
 
 
     /**
      * 味方行動ごとのアニメーションとステータスに対する処理
      */
-    _playAction: function (action, key){
-        var defer = $.Deferred();
+    _playAction: function (action, member){
 
-        console.log(key + action.position.slice(-1));
-        console.log(this.current_hp[key]);
+        console.log(member.target + action.position.slice(-1));
+        console.log(this.current_hp[member.target]);
 
-        this.current_hp[key] -= action.damage;
-        if (this.current_hp[key] < 0){
-            this.current_hp[key] = 0;
+        this.current_hp[member.target] -= action.damage;
+        if (this.current_hp[member.target] < 0){
+            this.current_hp[member.target] = 0;
         }
-        this.hp[key].runAction(
+        return $.when(
+            this._animeHP(member.target),
+            this._animeChar(member.subject, member.side),
+            this._damageEffect(member.target, action.damage),
+            this._debufEffect(member.target, action.debuf)
+        );
+    },
+
+
+    /**
+     * HPバーを減少するアニメーションをさせる
+     */
+    _animeHP: function (target){
+        var defer = $.Deferred();
+        this.hp[target].runAction(
             cc.sequence(
-                cc.scaleTo(1.0, 1.0, this.current_hp[key] / this.max_hp[key]),
+                cc.delayTime(0.2),
+                cc.scaleTo(0.4, 1.0, this.current_hp[target] / this.max_hp[target]),
                 cc.callFunc(defer.resolve)
             )
         );
         return $.when(defer);
     },
 
+
+    /**
+     * 攻撃するキャラをアニメーションさせる
+     */
+    _animeChar: function (subject, side){
+        var defer = $.Deferred();
+        var chars = this.getChildByName("chars");
+        var char = chars.getChildByName(subject);
+        char.runAction(
+            cc.sequence(
+                cc.moveBy(0.2, 20 * side, 0),     //前に出す
+                cc.jumpBy(0.3, 0, 0, 20, 2),      //ジャンプする
+                cc.moveBy(0.2, -20 * side, 0),    //元の位置に戻る
+                cc.callFunc(defer.resolve)
+            )
+        );
+        return $.when(defer);
+    },
+
+
+    /**
+     * 与えた/受けたダメージを表示する
+     */
+    _damageEffect: function (target, damage){
+        var defer = $.Deferred();
+        var label = this.getChildByName(target+"_damage");
+
+        label.setString(damage);
+        label.runAction(
+            cc.sequence(
+                cc.delayTime(0.2),
+                cc.callFunc(function(target){
+                    target.setVisible(true);
+                }, this, label),
+                cc.moveBy(0.2, 0, 20, 0),
+                cc.moveBy(0.2, 0, -20, 0),
+                cc.delayTime(0.3),
+                cc.callFunc(function(target){
+                    target.setVisible(false);
+                }, this, label),
+                cc.callFunc(defer.resolve)
+            )
+        );
+        return $.when(defer);
+    },
+
+
+    /**
+     * デバフ演出を行う
+     */
+    _debufEffect: function (target, debuf){
+        var chars = this.getChildByName("chars");
+        var char;
+        var actions = [];
+        for (var i = 1; i < 4; i++){
+            char = chars.getChildByName(target+i);
+            if (char && debuf[i-1]){
+                char.runAction(
+                    cc.sequence(
+                        cc.delayTime(0.2),
+                        cc.spawn(
+                            cc.tintBy(0.4, -32, -32, 0),
+                            cc.sequence(
+                                cc.moveBy(0.1, 10, 0),
+                                cc.moveBy(0.1, -10, 0),
+                                cc.moveBy(0.1, 10, 0),
+                                cc.moveBy(0.1, -10, 0)
+                            )
+                        )
+                    )
+                );
+            }
+        }
+    },
+
+
+    /**
+     * ターン数表示
+     */
+    _turnEffect: function (count){
+        return function () {
+            console.log(this);
+            var defer = $.Deferred();
+            this.turn.setString("Turn "+count);
+            this.turn.runAction(
+                cc.sequence(
+                    cc.moveTo(0, 900, 400),
+                    cc.show(),
+                    cc.moveBy(0.5, -300, 0),
+                    cc.moveBy(1.5, -300, 0),
+                    cc.moveBy(0.5, -400, 0),
+                    cc.hide(),
+                    cc.callFunc(defer.resolve)
+                )
+            );
+            return $.when(defer);
+        }.bind(this);
+    },
+
+
+    /**
+     * 次へ ボタン入力待ち
+     */
+    _waitNextButton: function (){
+        this.button_defer = null;
+        this.button_defer = $.Deferred();
+        var menu = this.getChildByName("menu");
+        menu.setVisible(true);
+        return $.when(this.button_defer);
+    },
+
+
+    /**
+     * 次へ ボタンが押された
+     */
+    _selectNext: function (){
+        var menu = this.getChildByName("menu");
+        menu.setVisible(false);
+        this.button_defer.resolve();
+    },
+
+
+    /**
+     * 結果表示 ボタン表示
+     */
+    _switchResultButton: function (){
+        var menu = this.getChildByName("menu");
+        var next = menu.getChildByName("next");
+        var result = menu.getChildByName("result");
+        next.setVisible(false);
+        result.setVisible(true);
+        menu.setVisible(true);
+    },
+
+    /**
+     * 結果表示 ボタンが押された
+     */
+    _selectResult: function (){
+        console.log("go to result");
+    },
 });

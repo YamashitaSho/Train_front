@@ -3,6 +3,7 @@ var res = {
     battle_ttl : "res/battle-ttl.png",
     battle_friend_hp : "res/battle/friend-hp.png",
     battle_enemy_hp : "res/battle/enemy-hp.png",
+    battle_next : "res/battle/next.png",
     menu_ttl : "res/menu-ttl.png",
     menu_btn00 : "res/menu-btn00.png",
     menu_btn01 : "res/menu-btn01.png",

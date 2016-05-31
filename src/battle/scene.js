@@ -8,11 +8,13 @@ var BattleScene = cc.Scene.extend({
         this.apiSetBattle();
         this.back = new BattleBackLayer();
         this.middle = new BattleMiddleLayer();
-        this.front = new BattleFrontLayer();
+        //this.front = new BattleFrontLayer();
         this.addChild(backgroundLayer);
         this.addChild(this.back);
         this.addChild(this.middle);
-        this.addChild(this.front);
+        //this.addChild(this.front);
+
+        this.scheduleUpdate();
     },
 
 
