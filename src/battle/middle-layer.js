@@ -29,7 +29,6 @@ var BattleMiddleLayer = cc.Layer.extend({
         this._makeSpriteDamage();
         this._makeLabelTurn();
         this._addButton();
-        console.log(this);
     },
 
 
@@ -420,7 +419,6 @@ var BattleMiddleLayer = cc.Layer.extend({
      */
     _turnEffect: function (count){
         return function () {
-            console.log(this);
             var defer = $.Deferred();
             this.turn.setString("Turn "+count);
             this.turn.runAction(
@@ -477,6 +475,9 @@ var BattleMiddleLayer = cc.Layer.extend({
      * 結果表示 ボタンが押された
      */
     _selectResult: function (){
-        console.log("go to result");
+        var transitionScene = cc.TransitionFade.create(0.5, new ResultScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
     },
 });

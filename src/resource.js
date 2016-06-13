@@ -24,7 +24,11 @@ var res = {
     gacha_button : "res/gacha-button.png",
     gacha_spot : "res/gacha-spot.png",
     quest_ttl : "res/quest-ttl.png",
+    result_ttl : "res/result-ttl.png",
+    result_win : "res/result-win.png",
+    result_lose : "res/result-lose.png",
     frame : "res/frame.png",
+    one_more : "res/one-more.png",
     yes : "res/yes.png",
     no : "res/no.png",
     ok : "res/ok.png"

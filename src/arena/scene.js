@@ -30,17 +30,11 @@ var ArenaLayer = cc.Layer.extend({
      */
     apiGetBattleList: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/stage",
+            url:"http://train-yama.nurika.be:8000/v1/stage",
             type:"GET",
         }).done(function(data){
             console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
+
             console.log(data);
         }).fail(function(data){
             console.log("failed...");
@@ -54,17 +48,11 @@ var ArenaLayer = cc.Layer.extend({
      */
     apiJoinArenaBattle: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/stage/",
+            url:"http://train-yama.nurika.be:8000/v1/stage/",
             type:"POST",
         }).done(function(data){
             console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
+
             console.log(data);
         }).fail(function(data){
             console.log("failed...");

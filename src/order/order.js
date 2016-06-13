@@ -84,15 +84,16 @@ var OrderScene = cc.Scene.extend({
      */
     apiGetOrder: function (){
         $.ajax({
-            url: "http://homestead.app:8000/v1/order/",
+            url: "http://train-yama.nurika.be:8000/v1/order/",
             type: "GET"
-        }).done(function (data) {
-            console.log(data);
-            order = data;
-            this.updateAppearance();
-        }.bind(this)).fail(function (data) {
-            console.log(data);
-        });
+        }).done(this._apiGetOrderSuccess.bind(this))
+        .fail(error.catch);
+    },
+
+
+    _apiGetOrderSuccess: function (data) {
+        order = data;
+        this.updateAppearance();
     },
 
 
@@ -116,16 +117,13 @@ var OrderScene = cc.Scene.extend({
             slot: 0 + this.charLayer.select.getPartyChar(),
             new_id: 0 + order.chars[this.charLayer.select.getChar()].char_id
         };
+
         $.ajax({
-            url:"http://homestead.app:8000/v1/order/char/",
+            url:"http://train-yama.nurika.be:8000/v1/order/char/",
             data:request,
             type:"PUT"
-        }).done(function(data){
-            console.log(data);
-            this.apiGetOrder();
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        }).done(this.apiGetOrder.bind(this))
+        .fail(error.catch);
     },
 
 
@@ -140,16 +138,13 @@ var OrderScene = cc.Scene.extend({
             slot: 0 + this.itemLayer.select.getPartyItem(),
             new_id: 0 + order.items[this.itemLayer.select.getItem()].item_id
         };
+
         $.ajax({
-            url:"http://homestead.app:8000/v1/order/item/",
+            url:"http://train-yama.nurika.be:8000/v1/order/char/",
             data:request,
             type:"PUT"
-        }).done(function(data){
-            console.log(data);
-            this.apiGetOrder();
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        }).done(this.apiGetOrder.bind(this))
+        .fail(error.catch);
     },
 
 

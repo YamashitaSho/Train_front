@@ -1,28 +1,17 @@
-var size;
-var aaa;
-var lavel;
-var hello;
-var scene;
-var sequence;
-var frame = 0;
-
-var ResultLayer = cc.Layer.extend({
-    ctor:function () {
+var ResultScene = cc.Scene.extend({
+    layer: null,
+    onEnter:function () {
         this._super();
+        var backgroundLayer = new cc.LayerColor(cc.color(170, 255, 255, 255));
+        this.layer = new ResultLayer();
+        this.addChild(backgroundLayer, 0);
+        this.addChild(this.layer);
+        this.apiGetResult();
+    },
 
-        label = new cc.LabelTTF.create("Hello Scene 3", "Arial", 40);
-        label.setPosition(size.width / 2, size.height / 2);
-        this.addChild(label, 1);
 
-        cc.eventManager.addListener({
-            event:cc.EventListener.MOUSE,
-            onMouseUp: function(evt) {
-                var transitionScene = cc.TransitionFade.create(2.0, new MenuScene());
-                cc.director.pushScene(transitionScene);
-                // 追加済みのイベントを削除
-                cc.eventManager.removeAllListeners();
-            },
-        }, this);
+    onExit:function () {
+        console.log("ResultScene onExit()");
     },
 
 
@@ -31,32 +20,32 @@ var ResultLayer = cc.Layer.extend({
      */
     apiGetResult: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/battle/result/0",
+            url:"http://train-yama.nurika.be:8000/v1/battle/result/0",
             type:"PUT",
-        }).done(function(data){
-            console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
-            console.log(data);
-        }).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+        })
+        .done(this._apiGetResultSuccess.bind(this))
+        .fail(error.catch, this._apiGetResultFail.bind(this));
     },
-});
 
-var ResultScene = cc.Scene.extend({
-    onEnter:function () {
-        this._super();
-        var layer = new ResultLayer();
-        this.addChild(layer);
+    _apiGetResultSuccess: function (data, textStatus, jqXHR) {
+        console.log(data);
+        this.layer.setAppearance(data);
     },
-    onExit:function () {
-        console.log("ResultScene onExit()");
+
+    _apiGetResultFail: function (data, textStatus, jqXHR) {
+        console.log(data);
+        if (data.responseJSON == "battle did not run"){
+            this._gotoBattle();
+        }
+    },
+
+    /**
+     * バトル結果が生成されていないのでバトル画面に遷移
+     */
+    _gotoBattle: function (){
+        var transitionScene = cc.TransitionFade.create(0.5, new BattleScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
     }
 });

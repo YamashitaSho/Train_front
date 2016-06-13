@@ -8,6 +8,9 @@ var QuestScene = cc.Scene.extend({
         this.addChild(this.layer);
         this.apiGetMyParty();
     },
+
+
+
     onExit:function () {
         console.log("QuestScene onExit()");
     },
@@ -15,14 +18,15 @@ var QuestScene = cc.Scene.extend({
 
     apiGetMyParty: function () {
         $.ajax({
-            url:"http://homestead.app:8000/v1/quest/",
+            url:"http://train-yama.nurika.be:8000/v1/quest/",
             type:"GET",
-        }).done(function(data){
-            console.log(data);
-            this.layer.updateStatus(data);
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        }).done(this._apiGetMyPartySuccess.bind(this))
+        .fail(error.catch);
     },
 
+
+    _apiGetMyPartySuccess: function (data) {
+            console.log(data);
+            this.layer.updateStatus(data);
+    },
 });

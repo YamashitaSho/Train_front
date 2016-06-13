@@ -3,6 +3,8 @@ var GachaLayer = cc.Layer.extend({
     availability : false,
     run : false,
     button_enable : false,
+
+
     ctor:function () {
         this._super();
 
@@ -12,7 +14,6 @@ var GachaLayer = cc.Layer.extend({
         this._addBackButton();
         this._addDrawButton();
         this._makeDetail();
-        console.log("aiueo gacha");
     },
 
 
@@ -136,20 +137,15 @@ var GachaLayer = cc.Layer.extend({
         this.setButtonEnable();
         var label_group = this.getChildByName("detail_status");
         var target;
-        if (data.availability === true){
-            for (var key in data){
-                target = label_group.getChildByName(key);
-                if (target !== null){       //keyがavailableのラベルはない
-                    target.setString(data[key]);
-                }
+        for (var key in data){
+            target = label_group.getChildByName(key);
+            if (target !== null){       //keyがavailableのラベルはない
+                target.setString(data[key]);
             }
-        } else {
-            target = label_group.getChildByName("rest_char");
-            target.setString(data.rest_char);
-            target = label_group.getChildByName("money");
-            target.setString(data.money);
+        }
+        if (data.gacha_cost === -1) {
             target = label_group.getChildByName("gacha_cost");
-            target.setString("-");
+            target.setString("--");
         }
     },
 

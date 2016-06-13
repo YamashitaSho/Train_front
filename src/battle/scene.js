@@ -8,11 +8,9 @@ var BattleScene = cc.Scene.extend({
         this.apiSetBattle();
         this.back = new BattleBackLayer();
         this.middle = new BattleMiddleLayer();
-        //this.front = new BattleFrontLayer();
         this.addChild(backgroundLayer);
         this.addChild(this.back);
         this.addChild(this.middle);
-        //this.addChild(this.front);
 
         this.scheduleUpdate();
     },
@@ -29,16 +27,17 @@ var BattleScene = cc.Scene.extend({
      */
     apiSetBattle: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/battle/0",
+            url:"http://train-yama.nurika.be:8000/v1/battle/0",
             type:"PUT",
-        }).done(function(data){
-            console.log(data);
-            this.middle.makeSpriteChar(data);
-            this.apiTurnoverBattle();
-        }.bind(this)).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+        }).done(this._apiSetBattleSuccess.bind(this))
+        .fail(error.catch);
+    },
+
+
+    _apiSetBattleSuccess: function (data){
+        console.log(data);
+        this.middle.makeSpriteChar(data);
+        this.apiTurnoverBattle();
     },
 
 
@@ -47,14 +46,30 @@ var BattleScene = cc.Scene.extend({
      */
     apiTurnoverBattle: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/battle/0",
+            url:"http://train-yama.nurika.be:8000/v1/battle/0",
             type:"GET",
-        }).done(function(data){
-            console.log(data);
-            this.middle.makeTimeline(data);
-        }.bind(this)).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+        }).done(this._apiTurnoverBattleSuccess.bind(this))
+        .fail(this._apiTurnoverBattleFail.bind(this));
+    },
+
+    _apiTurnoverBattleSuccess: function (data) {
+        console.log(data);
+        this.middle.makeTimeline(data);
+    },
+
+    _apiTurnoverBattleFail: function (data) {
+        if (data.responseJSON == "status: Already Closed Battle"){
+            this._gotoResult();
+        }
+        console.log("failed...");
+        console.log(data);
+    },
+
+
+    _gotoResult: function () {
+        var transitionScene = cc.TransitionFade.create(0.5, new ResultScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
     },
 });
