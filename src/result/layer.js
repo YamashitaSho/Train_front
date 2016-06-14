@@ -34,6 +34,7 @@ var ResultLayer = cc.Layer.extend({
         var char = new cc.Sprite();
         char.setPosition(200,380);
         char.setName("char");
+        char.setVisible(false);
         this.addChild(char);
     },
 
@@ -341,7 +342,16 @@ var ResultLayer = cc.Layer.extend({
     _setCharSprite: function (char_id) {
         var char = this.getChildByName("char");
         var url = "res/char/org/char"+("0"+char_id).slice(-2)+".png";
-        char.setTexture(url);
+        if (char !== null){
+
+            char.setTexture(url);
+            char.setVisible(true);
+        } else {
+            char = new cc.Sprite(url);
+            char.setPosition(200,380);
+            char.setName("char");
+            this.addChild(char);
+        }
     },
 
 
