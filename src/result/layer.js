@@ -47,10 +47,54 @@ var ResultLayer = cc.Layer.extend({
     },
 
 
-   /**
+    _putDetailLabel: function () {
+        this._putCharLabel();
+        this._putPrize();
+        this._putMoney();
+    },
+
+
+    _putMoney: function () {
+        var title = new cc.LabelTTF("しょじきん", "Arial", 32);
+        title.setPosition(590,360);
+        title.setColor(30,30,30,255);
+        var money = new cc.LabelTTF("00000", "Arial", 32);
+        money.setPosition(730, 360);
+        money.setName("money");
+        money.setColor(30,30,30,255);
+
+        var moneysp = new cc.Sprite();
+        moneysp.addChild(money);
+        moneysp.addChild(title);
+        moneysp.setName("money");
+        moneysp.setVisible(false);
+        this.addChild(moneysp);
+
+    },
+
+
+    _putPrize: function () {
+        var title = new cc.LabelTTF("かくとく", "Arial", 32);
+        title.setPosition(590,400);
+        title.setColor(30,30,30,255);
+        var prize = new cc.LabelTTF("00000", "Arial", 32);
+        prize.setPosition(730,400);
+        prize.setName("prize");
+        prize.setColor(30,30,30,255);
+
+        var prizesp = new cc.Sprite();
+        prizesp.addChild(title);
+        prizesp.addChild(prize);
+        prizesp.setName("prize");
+        prizesp.setVisible(false);
+        this.addChild(prizesp);
+    },
+
+
+    /**
      * キャラステータス表示用ラベルを作成
      */
-    _putDetailLabel: function () {
+    _putCharLabel: function () {
         var detail = [
         {
             name: "detail_title_0",
@@ -127,7 +171,6 @@ var ResultLayer = cc.Layer.extend({
             }
             this.addChild(detail_object[count]);
         }.bind(this));
-
     },
 
 
@@ -205,7 +248,6 @@ var ResultLayer = cc.Layer.extend({
             detail.addChild(create[count]);
         });
     },
-
 
 
     /**
@@ -313,6 +355,14 @@ var ResultLayer = cc.Layer.extend({
             format = this._formatObtainChar(data.obtained[key]);
             this._setDetailChar("detail_obtain_"+key, format);
         }
+        var moneysp = this.getChildByName("money");
+        var money = moneysp.getChildByName("money");
+        money.setString(data.money);
+        moneysp.setVisible(true);
+        var prizesp = this.getChildByName("prize");
+        var prize = prizesp.getChildByName("prize");
+        prize.setString(data.prize);
+        prizesp.setVisible(true);
     },
 
 
