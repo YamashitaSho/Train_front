@@ -12,7 +12,8 @@ var OrderLayer = cc.Layer.extend({
         this.putTitle();
         this.putFrame();
 
-        this.makeTabButton();
+        //アイテム機能削除によりタブ撤廃
+        //this.makeTabButton();
         this.addBackButton();
         this.putDetailFrame();
         this.makeChangeButton();//入れ替えボタン作成
