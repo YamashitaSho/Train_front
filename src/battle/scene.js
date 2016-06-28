@@ -11,8 +11,6 @@ var BattleScene = cc.Scene.extend({
         this.addChild(backgroundLayer);
         this.addChild(this.back);
         this.addChild(this.middle);
-
-        this.scheduleUpdate();
     },
 
 
