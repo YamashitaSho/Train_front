@@ -39,10 +39,8 @@ var QuestScene = cc.Scene.extend({
 
     _watchBackButton: function () {
         if (this.layer.back){
-            var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
-            cc.director.pushScene(transitionScene);
-            cc.eventManager.removeAllListeners();
-            this.removeAllChildren();
+            this.layer.back = false;
+            this._gotoMenu();
         }
     },
 
@@ -70,6 +68,14 @@ var QuestScene = cc.Scene.extend({
     _apiJoinQuestBattleSuccess: function (data, textStatus, jqXHR){
         console.log(data);
         var transitionScene = cc.TransitionFade.create(0.5, new BattleScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
+    },
+
+
+    _gotoMenu: function (){
+        var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
         cc.director.pushScene(transitionScene);
         cc.eventManager.removeAllListeners();
         this.removeAllChildren();
