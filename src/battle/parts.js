@@ -48,26 +48,26 @@ var BattleParts = {
     },
 
 
-    action_char: function (side) {
+    action_char: function (timer, side) {
         return cc.sequence(
-            cc.moveBy(0.2, 20 * side, 0),
-            cc.jumpBy(0.3, 0, 0, 20, 2),
-            cc.moveBy(0.2, -20 * side, 0)
+            cc.moveBy(0.2 * timer, 20 * side, 0),
+            cc.jumpBy(0.3 * timer, 0, 0, 20, 2),
+            cc.moveBy(0.2 * timer, -20 * side, 0)
         );
     },
 
 
     //Debuf
-    action_debuf: function () {
+    action_debuf: function (timer) {
         return cc.sequence(
-            cc.delayTime(0.2),
+            cc.delayTime(0.2* timer),
             cc.spawn(
-                cc.tintBy(0.4, -32, -32, 0),
+                cc.tintBy(0.4 * timer, -32, -32, 0),
                 cc.sequence(
-                    cc.moveBy(0.1, 10, 0),
-                    cc.moveBy(0.1, -10, 0),
-                    cc.moveBy(0.1, 10, 0),
-                    cc.moveBy(0.1, -10, 0)
+                    cc.moveBy(0.1 * timer, 10, 0),
+                    cc.moveBy(0.1 * timer, -10, 0),
+                    cc.moveBy(0.1 * timer, 10, 0),
+                    cc.moveBy(0.1 * timer, -10, 0)
                 )
             )
         );
@@ -75,13 +75,13 @@ var BattleParts = {
 
 
     //Turn
-    action_turn: function () {
+    action_turn: function (timer) {
         return cc.sequence(
             cc.moveTo(0, 900, 400),
             cc.show(),
-            cc.moveBy(0.5, -300, 0),
-            cc.moveBy(1.5, -300, 0),
-            cc.moveBy(0.5, -400, 0),
+            cc.moveBy(0.5 * timer, -300, 0),
+            cc.moveBy(1.5 * timer, -300, 0),
+            cc.moveBy(0.5 * timer, -400, 0),
             cc.hide()
         );
     },

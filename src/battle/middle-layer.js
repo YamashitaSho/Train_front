@@ -1,5 +1,5 @@
 var BattleMiddleLayer = cc.Layer.extend({
-
+    timer: 0.5,
     hp: {
         friend: null,
         enemy: null,
@@ -174,13 +174,13 @@ var BattleMiddleLayer = cc.Layer.extend({
         //アクション実行
         this.hp.friend.runAction(
             cc.sequence(
-                cc.scaleTo(0.8, 1.0, 1.0),
+                cc.scaleTo(0.8 * this.timer, 1.0, 1.0),
                 cc.callFunc(friend.resolve)
             )
         );
         this.hp.enemy.runAction(
             cc.sequence(
-                cc.scaleTo(0.8, 1.0, 1.0),
+                cc.scaleTo(0.8 * this.timer, 1.0, 1.0),
                 cc.callFunc(enemy.resolve)
             )
         );
@@ -318,8 +318,8 @@ var BattleMiddleLayer = cc.Layer.extend({
         var defer = $.Deferred();
         this.hp[target].runAction(
             cc.sequence(
-                cc.delayTime(0.2),
-                cc.scaleTo(0.4, 1.0, this.current_hp[target] / this.max_hp[target]),
+                cc.delayTime(0.2 * this.timer),
+                cc.scaleTo(0.4 * this.timer , 1.0, this.current_hp[target] / this.max_hp[target]),
                 cc.callFunc(defer.resolve)
             )
         );
@@ -338,7 +338,7 @@ var BattleMiddleLayer = cc.Layer.extend({
         var char = chars.getChildByName(subject);
         char.runAction(
             cc.sequence(
-                BattleParts.action_char(side),
+                BattleParts.action_char(this.timer, side),
                 cc.callFunc(defer.resolve)
             )
         );
@@ -356,13 +356,13 @@ var BattleMiddleLayer = cc.Layer.extend({
         label.setString(damage);
         label.runAction(
             cc.sequence(
-                cc.delayTime(0.2),
+                cc.delayTime(0.2 * this.timer),
                 cc.callFunc(function(target){
                     target.setVisible(true);
                 }, this, label),
-                cc.moveBy(0.2, 0, 20, 0),
-                cc.moveBy(0.2, 0, -20, 0),
-                cc.delayTime(0.3),
+                cc.moveBy(0.2 * this.timer, 0, 20, 0),
+                cc.moveBy(0.2 * this.timer, 0, -20, 0),
+                cc.delayTime(0.3 * this.timer),
                 cc.callFunc(function(target){
                     target.setVisible(false);
                 }, this, label),
@@ -382,7 +382,7 @@ var BattleMiddleLayer = cc.Layer.extend({
         for (var i = 1; i < 4; i++){
             char = chars.getChildByName(target+i);
             if (char && debuf[i-1]){
-                char.runAction(BattleParts.action_debuf());
+                char.runAction(BattleParts.action_debuf(this.timer));
             }
         }
     },
@@ -420,7 +420,7 @@ var BattleMiddleLayer = cc.Layer.extend({
             this.turn.runAction(
                 cc.sequence(
                     cc.callFunc(defer.resolve),
-                    BattleParts.action_turn()
+                    BattleParts.action_turn(this.timer)
                 )
             );
             return $.when(defer);
