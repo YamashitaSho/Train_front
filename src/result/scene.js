@@ -7,6 +7,15 @@ var ResultScene = cc.Scene.extend({
         this.addChild(backgroundLayer, 0);
         this.addChild(this.layer);
         this.apiGetResult();
+
+        this.scheduleUpdate();
+    },
+
+
+    update: function () {
+        this._watchBackButton();
+        this._watchArenaButton();
+        this._watchQuestButton();
     },
 
 
@@ -27,10 +36,12 @@ var ResultScene = cc.Scene.extend({
         .fail(error.catch, this._apiGetResultFail.bind(this));
     },
 
+
     _apiGetResultSuccess: function (data, textStatus, jqXHR) {
         console.log(data);
         this.layer.setAppearance(data);
     },
+
 
     _apiGetResultFail: function (data, textStatus, jqXHR) {
         console.log(data);
@@ -39,8 +50,49 @@ var ResultScene = cc.Scene.extend({
         }
     },
 
+
+    _watchBackButton: function () {
+        if (this.layer.back){
+            this.layer.back = false;
+            this._gotoMenu();
+        }
+    },
+
+
+    _watchArenaButton: function () {
+        if (this.layer.arena){
+            this.layer.arena = false;
+            this._gotoBattle();
+        }
+    },
+
+
+    _watchQuestButton: function () {
+        if (this.layer.quest){
+            this.layer.quest = false;
+            this._gotoQuest();
+        }
+    },
+
+
+    _gotoMenu: function () {
+        var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
+    },
+
+
+    _gotoQuest: function () {
+        var transitionScene = cc.TransitionFade.create(0.5, new QuestScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
+    },
+
+
     /**
-     * バトル結果が生成されていないのでバトル画面に遷移
+     * バトル画面に遷移
      */
     _gotoBattle: function (){
         var transitionScene = cc.TransitionFade.create(0.5, new BattleScene());

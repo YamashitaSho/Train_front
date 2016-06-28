@@ -1,5 +1,8 @@
 var ResultLayer = cc.Layer.extend({
     size: null,
+    back: false,
+    arena: false,
+    quest: false,
     ctor:function () {
         this._super();
 
@@ -304,12 +307,18 @@ var ResultLayer = cc.Layer.extend({
     },
 
 
-    /**
-     * ボタンを配置(非表示)
-     */
     _putMenu: function () {
+        this._putQuestMenu();
+        this._putArenaMenu();
+    },
+
+
+    /**
+     * クエスト系統のボタンを配置(非表示)
+     */
+    _putQuestMenu: function () {
         var back = new cc.MenuItemImage(res.back, res.back, this._selectBack, this);
-        var next = new cc.MenuItemImage(res.one_more, res. one_more, this._selectNext, this);
+        var next = new cc.MenuItemImage(res.one_more, res.one_more, this._selectNextQuest, this);
         back.setPosition(50, 50);
         next.setPosition(400,60);
         back.setName("back");
@@ -317,15 +326,57 @@ var ResultLayer = cc.Layer.extend({
 
         var menu = new cc.Menu(back, next);
         menu.setPosition(0, 0);
-        menu.setName("menu");
+        menu.setName("quest_menu");
+        menu.setVisible(false);
+        this.addChild(menu);
+    },
+
+
+    /**
+     * アリーナ系統のボタンを配置(非表示)
+     */
+    _putArenaMenu: function () {
+        var back = new cc.MenuItemImage(res.back, res.back, this._selectBack, this);
+        var next = new cc.MenuItemImage(res.one_more, res.one_more, this._selectNextArena, this);
+        back.setPosition(50, 50);
+        next.setPosition(400,60);
+        back.setName("back");
+        next.setName("next");
+        back.setVisible(false);
+
+        var menu = new cc.Menu(back, next);
+        menu.setPosition(0, 0);
+        menu.setName("arena_menu");
+        menu.setVisible(false);
         this.addChild(menu);
     },
 
 
     setAppearance: function (data) {
+        this._setMenuEnabled(data.type, data.is_win);
         this._setCharSprite(data.obtained[0].char_id);
         this._setLabels(data);
         this._setResult(data.is_win);
+    },
+
+
+    _setMenuEnabled: function (type, is_win) {
+        var type_initial = type.charAt(0);
+        var type_bottom = type.slice(-1);
+        var menu;
+        if (type_initial == "a"){      //arena
+            menu = this.getChildByName("arena_menu");
+            menu.setVisible(true);
+            if ((type_bottom == "2") || !is_win){
+                var back = menu.getChildByName("back");
+                back.setVisible(true);
+                var next = menu.getChildByName("next");
+                next.setVisible(false);
+            }
+        } else if (type_initial == "q") { //quest
+            menu = this.getChildByName("quest_menu");
+            menu.setVisible(true);
+        }
     },
 
 
@@ -467,18 +518,16 @@ var ResultLayer = cc.Layer.extend({
 
 
     _selectBack: function (){
-        var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
-        cc.director.pushScene(transitionScene);
-        cc.eventManager.removeAllListeners();
-        this.removeAllChildren();
+        this.back = true;
     },
 
 
-    _selectNext: function (){
-        var transitionScene = cc.TransitionFade.create(0.5, new QuestScene());
-        cc.director.pushScene(transitionScene);
-        cc.eventManager.removeAllListeners();
-        this.removeAllChildren();
+    _selectNextQuest: function (){
+        this.quest = true;
     },
+
+    _selectNextArena: function (){
+        this.arena = true;
+    }
 
 });
