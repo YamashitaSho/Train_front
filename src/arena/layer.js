@@ -337,6 +337,7 @@ var ArenaLayer = cc.Layer.extend({
      * アリーナボタンがクリックされた
      */
     _joinArena: function (sender) {
+        sender.setEnabled(false);
         this.join = sender.getName().slice(-1);
     },
 

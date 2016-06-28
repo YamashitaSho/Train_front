@@ -1,6 +1,8 @@
 var QuestConfirmLayer = cc.Layer.extend({
     can_to_next: false,
     size: null,
+    back: false,
+    join: false,
     ctor:function () {
         this._super();
 
@@ -343,50 +345,27 @@ var QuestConfirmLayer = cc.Layer.extend({
     /**
      * はいボタンの選択
      */
-    _selectYes: function (){
-        this.apiJoinQuestBattle();
+    _selectYes: function (sender){
+        console.log(sender);
+        sender.setEnabled(false);
+        this.join = true;
     },
 
 
     /**
      * いいえボタンの選択
      */
-    _selectNo: function (){
-        var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
-        cc.director.pushScene(transitionScene);
-        cc.eventManager.removeAllListeners();
-        this.removeAllChildren();
+    _selectNo: function (sender){
+        this.back = true;
     },
 
 
     /**
      * 戻るボタンの選択
      */
-    _selectBack: function (){
-        var transitionScene = cc.TransitionFade.create(0.5, new MenuScene());
-        cc.director.pushScene(transitionScene);
-        cc.eventManager.removeAllListeners();
-        this.removeAllChildren();
+    _selectBack: function (sender){
+        this.back = true;
     },
 
 
-    /**
-     * バトル発行APIの送信
-     */
-    apiJoinQuestBattle: function (){
-        $.ajax({
-            url:"http://train-yama.nurika.be:8000/v1/quest/",
-            type:"POST",
-        }).done(this._apiJoinQuestBattleSuccess.bind(this))
-        .fail(error.catch);
-    },
-
-
-    _apiJoinQuestBattleSuccess: function (data, textStatus, jqXHR){
-        console.log(data);
-        var transitionScene = cc.TransitionFade.create(0.5, new BattleScene());
-        cc.director.pushScene(transitionScene);
-        cc.eventManager.removeAllListeners();
-        this.removeAllChildren();
-    },
 });
