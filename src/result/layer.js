@@ -343,7 +343,6 @@ var ResultLayer = cc.Layer.extend({
         var char = this.getChildByName("char");
         var url = "res/char/org/char"+("0"+char_id).slice(-2)+".png";
         if (char !== null){
-
             char.setTexture(url);
             char.setVisible(true);
         } else {

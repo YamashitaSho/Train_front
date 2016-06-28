@@ -1,4 +1,5 @@
 var res = {
+    arena_ttl : "res/arena-ttl.png",
     back : "res/back.png",
     battle_ttl : "res/battle-ttl.png",
     battle_friend_hp : "res/battle/friend-hp.png",
