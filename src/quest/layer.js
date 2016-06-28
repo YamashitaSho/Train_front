@@ -381,6 +381,7 @@ var QuestConfirmLayer = cc.Layer.extend({
         .fail(error.catch);
     },
 
+
     _apiJoinQuestBattleSuccess: function (data, textStatus, jqXHR){
         console.log(data);
         var transitionScene = cc.TransitionFade.create(0.5, new BattleScene());
