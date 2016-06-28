@@ -149,11 +149,12 @@ var BattleMiddleLayer = cc.Layer.extend({
      * @param object バトルログ
      */
     makeTimeline: function (data) {
+        this._setHpAtBegin(data);
         //戦闘開始時のアニメーション
         this._getTimelineOfBegin()
-        //戦闘中
+        //戦闘中のターンアニメーション
         .then(function(){
-            return this._getTimelineOfTurn(data);
+            return this._loopOfTurn(data, 0)();
         }.bind(this))
         //戦闘終了
         .then(function(){
@@ -188,10 +189,7 @@ var BattleMiddleLayer = cc.Layer.extend({
     },
 
 
-    /**
-     * ターンごとのアニメーションユニット
-     */
-    _getTimelineOfTurn: function (data){
+    _setHpAtBegin: function (data){
         this.max_hp = {
             friend: data[0].friend_hp,
             enemy: data[0].enemy_hp
@@ -200,27 +198,26 @@ var BattleMiddleLayer = cc.Layer.extend({
             friend: this.max_hp.friend,
             enemy : this.max_hp.enemy
         };
-        return $.when(
-            this._loopTimelineOfTurn(data, 0)()
-        );
     },
 
 
     /**
      * ターン処理(再帰ループ)
      */
-    _loopTimelineOfTurn: function (data, count) {
+    _loopOfTurn: function (data, count) {
         return function () {
-            console.log("turn count:"+count);
+            //console.log("turn count:"+count);
             var defer = $.Deferred();
+            this._clearDebufEffect();
             if (!(count in data)){
+                //ターンのループがデータの範囲を超えた
                 defer.resolve();
             } else {
                 var turn = data[count];
 
-                this._getTimelineOfAction(turn, count)()         //このターンの行動
-                .then(this._loopTimelineOfTurn(data, count+1))  //次のターンに進む
-                .then(defer.resolve);                           //ターンを片付ける
+                this._animationOfTurn(turn, count)()        //このターンの行動
+                .then(this._loopOfTurn(data, count+1))      //再帰的に次のターンに進む
+                .then(defer.resolve);                       //ターンを片付ける
             }
             return $.when(defer);
         }.bind(this);
@@ -230,16 +227,15 @@ var BattleMiddleLayer = cc.Layer.extend({
     /**
      *
      */
-    _getTimelineOfAction: function (turn, count){
+    _animationOfTurn: function (turn, count){
         return function () {
-            var defer;
+            var defer = $.Deferred();
             if (!!turn.action){
-                defer = this._waitNextButton()              //ボタンを押させる
-                .done(
-                    this._loopTimelineOfAct(turn, 0),
-                    this._turnEffect(count));    //行動ループを回す
+                this._waitNextButton()              //ボタンを押させる
+                .then(this._turnEffect(count))
+                .then(this._loopOfAction(turn, 0))
+                .then(defer.resolve);
             } else {
-                defer = $.Deferred();
                 defer.resolve();
             }
             return $.when(defer);
@@ -251,7 +247,7 @@ var BattleMiddleLayer = cc.Layer.extend({
      * キャラ行動処理(再帰処理)
      * @return function()
      */
-    _loopTimelineOfAct: function (turn, count) {
+    _loopOfAction: function (turn, count) {
         return function () {
             var defer = $.Deferred();
 
@@ -260,9 +256,10 @@ var BattleMiddleLayer = cc.Layer.extend({
             } else {
                 var action = turn.action[count];
                 var member = this._getAction(action);
-                this._playAction(action, member)
-                .then(this._loopTimelineOfAct(turn, count+1))
-                .then(defer.resolve);
+
+                this._animationOfAction(action, member)     //この行動のアニメーション
+                .then(this._loopOfAction(turn, count+1))    //再帰的に次のアニメーションに進む
+                .then(defer.resolve);                       //アニメーションを片付ける
             }
 
             return $.when(defer);
@@ -271,7 +268,7 @@ var BattleMiddleLayer = cc.Layer.extend({
 
 
     /**
-     * アクションに対して主体と対象を取得する(非同期演算ではない)
+     * アクションに対して主体と対象を取得する
      */
     _getAction: function (action){
         var res = {
@@ -296,7 +293,7 @@ var BattleMiddleLayer = cc.Layer.extend({
     /**
      * 味方行動ごとのアニメーションとステータスに対する処理
      */
-    _playAction: function (action, member){
+    _animationOfAction: function (action, member){
 
         console.log(member.target + action.position.slice(-1));
         console.log(this.current_hp[member.target]);
@@ -332,6 +329,8 @@ var BattleMiddleLayer = cc.Layer.extend({
 
     /**
      * [Deferred]攻撃するキャラをアニメーションさせる
+     * @param string subject 攻撃する主体
+     * @param number side 攻撃する主体の向き
      */
     _animeChar: function (subject, side){
         var defer = $.Deferred();
@@ -390,7 +389,29 @@ var BattleMiddleLayer = cc.Layer.extend({
 
 
     /**
+     * [No Deffered]デバフ演出を解除
+     */
+    _clearDebufEffect: function (){
+        var chars = this.getChildByName("chars");
+        var char;
+        for (var i = 1; i < 4; i++){
+            char = chars.getChildByName("enemy"+i);
+            if (char){
+                char.runAction(cc.tintTo(0, 255, 255, 255));
+            }
+        }
+        for (i = 1; i < 4; i++){
+            char = chars.getChildByName("friend"+i);
+            if (char){
+                char.runAction(cc.tintTo(0, 255, 255, 255));
+            }
+        }
+    },
+
+
+    /**
      * [Deferred]ターン数表示
+     * 表示を待たないので先にresolveしている
      */
     _turnEffect: function (count){
         return function () {
@@ -398,8 +419,8 @@ var BattleMiddleLayer = cc.Layer.extend({
             this.turn.setString("Turn "+count);
             this.turn.runAction(
                 cc.sequence(
-                    BattleParts.action_turn(),
-                    cc.callFunc(defer.resolve)
+                    cc.callFunc(defer.resolve),
+                    BattleParts.action_turn()
                 )
             );
             return $.when(defer);
@@ -411,10 +432,7 @@ var BattleMiddleLayer = cc.Layer.extend({
      * 次へ ボタン入力待ち
      */
     _waitNextButton: function (){
-        this.button_defer = null;
         this.button_defer = $.Deferred();
-        console.log("a");
-        console.log(this.button_defer);
         var menu = this.getChildByName("menu");
         var next = menu.getChildByName("next");
         menu.setVisible(true);
