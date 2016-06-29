@@ -26,14 +26,28 @@ var AuthLayer = cc.Layer.extend({
     ctor: function () {
         this._super();
         this._addButton();
+        this._addTitle();
     },
-        /**
+
+
+    /**
+     * タイトルロゴの表示
+     */
+    _addTitle: function () {
+        url = "res/title.png";
+        var title = new cc.Sprite(url);
+        title.setPosition(400,400);
+        this.addChild(title);
+    },
+
+
+    /**
      * ボタンメニューの表示
      */
     _addButton: function () {
         url = "res/google.png";
         var button_google = new cc.MenuItemImage(url, url, this._selectGoogle, this);
-        button_google.setPosition(400,300);
+        button_google.setPosition(400,150);
         button_google.setName("yes");
 
         var menu = new cc.Menu(button_google);
