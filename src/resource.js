@@ -1,8 +1,10 @@
 var res = {
-    aaa_png : "res/aaa.png",
-    menu_button : "res/btn-menu.png",
-    hello_png : "res/HelloWorld.png",
+    arena_ttl : "res/arena-ttl.png",
     back : "res/back.png",
+    battle_ttl : "res/battle-ttl.png",
+    battle_friend_hp : "res/battle/friend-hp.png",
+    battle_enemy_hp : "res/battle/enemy-hp.png",
+    battle_next : "res/battle/next.png",
     menu_ttl : "res/menu-ttl.png",
     menu_btn00 : "res/menu-btn00.png",
     menu_btn01 : "res/menu-btn01.png",
@@ -22,7 +24,15 @@ var res = {
     gacha_ttl : "res/gacha-ttl.png",
     gacha_button : "res/gacha-button.png",
     gacha_spot : "res/gacha-spot.png",
-    frame : "res/frame.png"
+    quest_ttl : "res/quest-ttl.png",
+    result_ttl : "res/result-ttl.png",
+    result_win : "res/result-win.png",
+    result_lose : "res/result-lose.png",
+    frame : "res/frame.png",
+    one_more : "res/one-more.png",
+    yes : "res/yes.png",
+    no : "res/no.png",
+    ok : "res/ok.png"
 };
 
 var g_resources = [];

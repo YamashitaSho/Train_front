@@ -1,28 +1,22 @@
-var size;
-var aaa;
-var lavel;
-var hello;
-var scene;
-var sequence;
-var frame = 0;
-
-var BattleLayer = cc.Layer.extend({
-    ctor:function () {
+var BattleScene = cc.Scene.extend({
+    back: null,
+    middle: null,
+    front: null,
+    onEnter:function () {
         this._super();
+        var backgroundLayer = new cc.LayerColor(cc.color(170,255,255,255));
+        this.apiSetBattle();
+        this.back = new BattleBackLayer();
+        this.middle = new BattleMiddleLayer();
+        this.addChild(backgroundLayer);
+        this.addChild(this.back);
+        this.addChild(this.middle);
+    },
 
-        label = new cc.LabelTTF.create("Hello Scene 3", "Arial", 40);
-        label.setPosition(size.width / 2, size.height / 2);
-        this.addChild(label, 1);
 
-        cc.eventManager.addListener({
-            event:cc.EventListener.MOUSE,
-            onMouseUp: function(evt) {
-                var transitionScene = cc.TransitionFade.create(2.0, new MenuScene());
-                cc.director.pushScene(transitionScene);
-                // 追加済みのイベントを削除
-                cc.eventManager.removeAllListeners();
-            },
-        }, this);
+
+    onExit:function () {
+        console.log("BattleScene onExit()");
     },
 
 
@@ -31,22 +25,17 @@ var BattleLayer = cc.Layer.extend({
      */
     apiSetBattle: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/battle/0",
+            url:"http://train-yama.nurika.be:8000/v1/battle/0",
             type:"PUT",
-        }).done(function(data){
-            console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
-            console.log(data);
-        }).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+        }).done(this._apiSetBattleSuccess.bind(this))
+        .fail(error.catch);
+    },
+
+
+    _apiSetBattleSuccess: function (data){
+        console.log(data);
+        this.middle.makeSpriteChar(data);
+        this.apiTurnoverBattle();
     },
 
 
@@ -55,32 +44,30 @@ var BattleLayer = cc.Layer.extend({
      */
     apiTurnoverBattle: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/battle/0",
+            url:"http://train-yama.nurika.be:8000/v1/battle/0",
             type:"GET",
-        }).done(function(data){
-            console.log("success!");
-            /*if (data.money != null){
-                label_money.setString("money:"+data.money);
-            }
-            console.log(data.money);
-            _.forEach(data.party,function(party,count){
-                console.log(party.char_id || 'hoge'+count);
-            });*/
-            console.log(data);
-        }).fail(function(data){
-            console.log("failed...");
-            console.log(data);
-        });
+        }).done(this._apiTurnoverBattleSuccess.bind(this))
+        .fail(this._apiTurnoverBattleFail.bind(this));
     },
-});
 
-var BattleScene = cc.Scene.extend({
-    onEnter:function () {
-        this._super();
-        var layer = new BattleLayer();
-        this.addChild(layer);
+    _apiTurnoverBattleSuccess: function (data) {
+        console.log(data);
+        this.middle.makeTimeline(data);
     },
-    onExit:function () {
-        console.log("BattleScene onExit()");
-    }
+
+    _apiTurnoverBattleFail: function (data) {
+        if (data.responseJSON == "status: Already Closed Battle"){
+            this._gotoResult();
+        }
+        console.log("failed...");
+        console.log(data);
+    },
+
+
+    _gotoResult: function () {
+        var transitionScene = cc.TransitionFade.create(0.5, new ResultScene());
+        cc.director.pushScene(transitionScene);
+        cc.eventManager.removeAllListeners();
+        this.removeAllChildren();
+    },
 });

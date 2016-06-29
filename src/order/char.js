@@ -16,11 +16,11 @@ var CharLayer = cc.Layer.extend({
      */
      makeTab: function (){
         var tab_char = new cc.MenuItemImage(res.order_tab_char_on);
-        var tab_item = new cc.MenuItemImage(res.order_tab_item_off);
+        //var tab_item = new cc.MenuItemImage(res.order_tab_item_off);
         tab_char.setPosition(505,450);
-        tab_item.setPosition(650,450);
+        //tab_item.setPosition(650,450);
         this.addChild(tab_char);
-        this.addChild(tab_item);
+        //this.addChild(tab_item);
      },
 
 

@@ -1,24 +1,23 @@
-var QuestConfirmLayer = cc.Layer.extend({
-    can_to_next: false,
+var ArenaLayer = cc.Layer.extend({
     size: null,
+    message: null,
     back: false,
-    join: false,
+    join: null,
     ctor:function () {
         this._super();
-
         this.size = cc.director.getWinSize();
+
         this._putTitle();
         this._putFrame();
-
-        this._addButton();
+        this._putMessage();
         this._putCharSprite();
         this._putDetail();
+        this._addBackButton();
     },
 
 
-
     _putTitle: function () {
-        var head = new cc.Sprite(res.quest_ttl);
+        var head = new cc.Sprite(res.arena_ttl);
         head.setPosition(this.size.width / 2, this.size.height - 80);
         this.addChild(head);
     },
@@ -28,6 +27,15 @@ var QuestConfirmLayer = cc.Layer.extend({
         var frame = new cc.Sprite(res.frame);
         frame.setPosition(this.size.width / 2, this.size.height / 2);
         this.addChild(frame);
+    },
+
+
+    _putMessage: function (){
+        this.message = new cc.LabelTTF("挑むアリーナを挑んでください", "Arial", 16);
+        this.message.setVisible(false);
+        this.message.setPosition(200, 270);
+        this.message.setColor(30,30,30,255);
+        this.addChild(this.message);
     },
 
 
@@ -207,33 +215,17 @@ var QuestConfirmLayer = cc.Layer.extend({
 
 
     /**
-     * ボタンメニューの表示
-     */
-    _addButton: function () {
-        var button_yes = new cc.MenuItemImage(res.yes, res.yes, this._selectYes, this);
-        var button_no = new cc.MenuItemImage(res.no, res.no, this._selectNo, this);
-        var button_back = new cc.MenuItemImage(res.back, res.back, this._selectBack, this);
-        button_yes.setPosition(240, 96);
-        button_no.setPosition(560, 96);
-        button_back.setPosition(50, 50);
-        button_yes.setName("yes");
-        button_no.setName("no");
-        button_back.setName("back");
-        button_yes.setVisible(false);
-        button_no.setVisible(false);
-
-        var menu = new cc.Menu(button_yes, button_no, button_back);
-        menu.setPosition(0, 0);
-        menu.setName("menu");
-        this.addChild(menu);
-
-    },
-
-
-    /**
      * APIで取得したパーティ情報でレイヤーを更新する
      */
     updateStatus: function (data){
+        console.log(data);
+        this._setCharStatusLabel(data.chars);
+        this._addArenaList(data.stages);
+        this.message.setVisible(true);
+    },
+
+
+    _setCharStatusLabel: function (data){
         var label_group;
         var char_sprite_group = this.getChildByName("chars");
 
@@ -243,7 +235,7 @@ var QuestConfirmLayer = cc.Layer.extend({
             char_sprite = char_sprite_group.getChildByName(index);
             this._loadCharImage(data[index], char_sprite);
         }
-        this._updateText(Object.keys(data).length);
+
     },
 
 
@@ -311,61 +303,61 @@ var QuestConfirmLayer = cc.Layer.extend({
 
 
     /**
-     * 編成されているキャラ数に応じた処理を行う
+     * 受け取ったアリーナの数だけアリーナ画像を並べる
      */
-    _updateText: function (count){
-        var text = new cc.LabelTTF("", "Arial", 16);
-        text.setAnchorPoint(0, 0);
-        text.setPosition(140, 200);
-        text.setColor(30,30,30,255);
-        if (count === 0){
-            text.setString("パーティメンバーがいないためクエストを進行できません。");
-        } else if (count === 3) {
-            this._enableMenu();
-            text.setString("この編成でクエストを進行しますか？");
-        } else {
-            this._enableMenu();
-            text.setString("パーティメンバーが3人に満たないですがこの編成を進行しますか？");
+    _addArenaList: function (arenas){
+        var poslist = {
+            0: {x:100, y:200},
+            1: {x:200, y:150},
+            2: {x:300, y:200},
+            3: {x:400, y:150},
+            4: {x:500, y:200},
+            5: {x:600, y:150},
+            6: {x:700, y:200},
+        };
+        var url;
+        var buttons = [];
+        for (var key in arenas){
+            if (key > 6){
+                break;
+            }
+            url = "res/arena/button-" + key + ".png";
+            buttons[key] = new cc.MenuItemImage(url, url, this._joinArena, this);
+            buttons[key].setName("arena" + key);
+            buttons[key].setPosition(poslist[key]);
         }
-        this.addChild(text);
+        var menu = new cc.Menu(buttons);
+        menu.setName("arena");
+        menu.setPosition(0, 0);
+        this.addChild(menu);
     },
 
 
     /**
-     * ボタンを有効化する
+     * アリーナボタンがクリックされた
      */
-    _enableMenu: function () {
-        var menu = this.getChildByName("menu");
-        var yes = menu.getChildByName("yes");
-        var no = menu.getChildByName("no");
-        yes.setVisible(true);
-        no.setVisible(true);
-    },
-
-    /**
-     * はいボタンの選択
-     */
-    _selectYes: function (sender){
-        console.log(sender);
+    _joinArena: function (sender) {
         sender.setEnabled(false);
-        this.join = true;
+        this.join = sender.getName().slice(-1);
     },
 
 
     /**
-     * いいえボタンの選択
+     * 戻るボタンの表示
      */
-    _selectNo: function (sender){
-        this.back = true;
+    _addBackButton: function (){
+        var back = new cc.MenuItemImage(res.back, res.back, this._selectBack, this);
+        var back_menu = new cc.Menu(back);
+        back_menu.setPosition(50, 50);
+        this.addChild(back_menu,200);
     },
 
 
     /**
-     * 戻るボタンの選択
+     * 戻るボタンが押された
      */
-    _selectBack: function (sender){
+    _selectBack: function () {
         this.back = true;
     },
-
 
 });

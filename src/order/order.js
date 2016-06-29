@@ -14,16 +14,16 @@ var OrderScene = cc.Scene.extend({
         var backgroundLayer = new cc.LayerColor(cc.color(170, 255, 255, 255));
         this.commonLayer = new OrderLayer();
         this.charLayer = new CharLayer();
-        this.itemLayer = new ItemLayer();
+        //this.itemLayer = new ItemLayer();
 
         this.charLayer.setName("char");
-        this.itemLayer.setName("item");
+        //this.itemLayer.setName("item");
         this.commonLayer.setName("common");
-        this.itemLayer.setVisible(false);   //itemLayerは初期で非表示
+        //this.itemLayer.setVisible(false);   //itemLayerは初期で非表示
 
         this.addChild(backgroundLayer, 0);
         this.addChild(this.charLayer, 100);
-        this.addChild(this.itemLayer, 100);
+        //this.addChild(this.itemLayer, 100);
         this.addChild(this.commonLayer, 200);
 
         this.apiGetOrder();
@@ -39,7 +39,7 @@ var OrderScene = cc.Scene.extend({
         this.changeOrder();
 
         this.charLayer.updateSelect();
-        this.itemLayer.updateSelect();
+        //this.itemLayer.updateSelect();
 
         if (this.commonLayer.getBackFlag()){
             this.selectBack();
@@ -55,9 +55,9 @@ var OrderScene = cc.Scene.extend({
         if (this.commonLayer.getTabFlag()){
             this.char_mode = (!this.char_mode);
             this.charLayer.setVisible(this.char_mode);
-            this.itemLayer.setVisible(!this.char_mode);
+            //this.itemLayer.setVisible(!this.char_mode);
             this.charLayer.select.setUpdate();
-            this.itemLayer.select.setUpdate();
+            //this.itemLayer.select.setUpdate();
         }
     },
 
@@ -84,15 +84,16 @@ var OrderScene = cc.Scene.extend({
      */
     apiGetOrder: function (){
         $.ajax({
-            url: "http://homestead.app:8000/v1/order/",
+            url: "http://train-yama.nurika.be:8000/v1/order/",
             type: "GET"
-        }).done(function (data) {
-            console.log(data);
-            order = data;
-            this.updateAppearance();
-        }.bind(this)).fail(function (data) {
-            console.log(data);
-        });
+        }).done(this._apiGetOrderSuccess.bind(this))
+        .fail(error.catch);
+    },
+
+
+    _apiGetOrderSuccess: function (data) {
+        order = data;
+        this.updateAppearance();
     },
 
 
@@ -101,7 +102,7 @@ var OrderScene = cc.Scene.extend({
      */
     updateAppearance: function () {
         this.charLayer.updateChars();
-        this.itemLayer.updateItems();
+       // this.itemLayer.updateItems();
     },
 
 
@@ -116,16 +117,13 @@ var OrderScene = cc.Scene.extend({
             slot: 0 + this.charLayer.select.getPartyChar(),
             new_id: 0 + order.chars[this.charLayer.select.getChar()].char_id
         };
+
         $.ajax({
-            url:"http://homestead.app:8000/v1/order/char/",
+            url:"http://train-yama.nurika.be:8000/v1/order/char/",
             data:request,
             type:"PUT"
-        }).done(function(data){
-            console.log(data);
-            this.apiGetOrder();
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        }).done(this.apiGetOrder.bind(this))
+        .fail(error.catch);
     },
 
 
@@ -140,16 +138,13 @@ var OrderScene = cc.Scene.extend({
             slot: 0 + this.itemLayer.select.getPartyItem(),
             new_id: 0 + order.items[this.itemLayer.select.getItem()].item_id
         };
+
         $.ajax({
-            url:"http://homestead.app:8000/v1/order/item/",
+            url:"http://train-yama.nurika.be:8000/v1/order/char/",
             data:request,
             type:"PUT"
-        }).done(function(data){
-            console.log(data);
-            this.apiGetOrder();
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        }).done(this.apiGetOrder.bind(this))
+        .fail(error.catch);
     },
 
 

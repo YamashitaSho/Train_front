@@ -4,6 +4,8 @@ var GachaScene = cc.Scene.extend({
     draw: null,
     menu_enable: false,
     update_check: false,
+
+
     onEnter:function () {
         this._super();
 
@@ -45,14 +47,13 @@ var GachaScene = cc.Scene.extend({
 
 
     /**
-     *
+     * ガチャを引くボタンが押された
      */
     runGacha: function () {
         this.draw.setGacha();
         this.draw.is_drawing = true;
         this.gacha.setButtonUnable();
         this.apiDrawGacha();
-
     },
 
 
@@ -61,15 +62,17 @@ var GachaScene = cc.Scene.extend({
      */
     apiCheckGacha: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/gacha/",
+            url:"http://train-yama.nurika.be:8000/v1/gacha/",
             type:"GET",
-        }).done(function(data){
-            console.log(data);
-            this.gacha.loadStatus(data);
-        }.bind(this)).fail(function(data){
-            console.log(data);
-        });
+        })
+        .done(this.apiCheckGachaSuccess.bind(this))
+        .fail(error.catch);
+    },
 
+
+    apiCheckGachaSuccess: function (data, textStatus, jqXHR) {
+        console.log(data);
+        this.gacha.loadStatus(data);
     },
 
 
@@ -78,26 +81,22 @@ var GachaScene = cc.Scene.extend({
      */
     apiDrawGacha: function (){
         $.ajax({
-            url:"http://homestead.app:8000/v1/gacha/",
+            url:"http://train-yama.nurika.be:8000/v1/gacha/",
             type:"POST",
-            statusCode: {
-                201: this.handle201.bind(this),
-                400: this.handle400.bind(this)
-            },
-        });
+        })
+        .done(this.apiDrawGachaSuccess.bind(this))
+        .fail(error.catch, this.apiDrawGachaFail.bind(this));
     },
 
 
-    handle201: function (data, textStatus, jqXHR){
+    apiDrawGachaSuccess: function (data, textStatus, jqXHR){
         this.draw.animeBegin(data);
     },
 
 
-    handle400: function (data, textStatus, jqXHR){
+    apiDrawGachaFail: function (data, textStatus, jqXHR){
         this.gacha.setButtonEnable();
         console.log(data);
-        console.log(textStatus);
-        console.log(jqXHR);
     },
 
 
