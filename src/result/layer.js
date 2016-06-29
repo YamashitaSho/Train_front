@@ -381,7 +381,7 @@ var ResultLayer = cc.Layer.extend({
 
 
     _setResult: function (is_win){
-        var result = (is_win) ? 'result_win' : 'result_false';
+        var result = (is_win) ? 'result_win' : 'result_lose';
         var result_sprite = this.getChildByName("result");
         result_sprite.setTexture(res[result]);
         result_sprite.setVisible(true);
